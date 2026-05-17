@@ -41,6 +41,8 @@ services:
     restart: unless-stopped
     ports:
       - "8084:8084"
+    env_file:
+      - .env
     environment:
       SERVER_PORT: 8084
       COMMUNITY_DB_URL: jdbc:postgresql://community-db:5432/wellu_community
@@ -49,6 +51,8 @@ services:
       COMMUNITY_NEO4J_URI: bolt://community-graph:7687
       COMMUNITY_NEO4J_USERNAME: neo4j
       COMMUNITY_NEO4J_PASSWORD: password
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
     depends_on:
       community-db:
         condition: service_healthy
