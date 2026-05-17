@@ -1,0 +1,60 @@
+services:
+  community-db:
+    image: postgres:14
+    container_name: community_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: community
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: wellu_community
+    ports:
+      - "5436:5432"
+    volumes:
+      - community-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U community -d wellu_community"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  community-graph:
+    image: neo4j:5.26-community
+    container_name: community_graph
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: neo4j/password
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - community-neo4j-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1;'"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  community-service:
+    build: .
+    container_name: community-service
+    image: wellu-community-service
+    restart: unless-stopped
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT: 8084
+      COMMUNITY_DB_URL: jdbc:postgresql://community-db:5432/wellu_community
+      COMMUNITY_DB_USERNAME: community
+      COMMUNITY_DB_PASSWORD: password
+      COMMUNITY_NEO4J_URI: bolt://community-graph:7687
+      COMMUNITY_NEO4J_USERNAME: neo4j
+      COMMUNITY_NEO4J_PASSWORD: password
+    depends_on:
+      community-db:
+        condition: service_healthy
+      community-graph:
+        condition: service_healthy
+
+volumes:
+  community-postgres-data:
+  community-neo4j-data:

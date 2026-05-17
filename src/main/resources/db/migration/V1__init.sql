@@ -1,0 +1,2 @@
+-- Initial schema placeholder for the WellU community service.
+-- PostgreSQL tables for posts and reactions will be introduced in later migrations.
