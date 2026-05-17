@@ -1,0 +1,7 @@
+target
+.git
+.idea
+.mvn
+README.md
+docker-compose.yml
+**/.DS_Store
