@@ -11,5 +11,7 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     List<Post> findAllByAuthorIdOrderByCreatedAtDesc(UUID authorId);
 
+    List<Post> findAllByAuthorIdInOrderByCreatedAtDesc(List<UUID> authorIds);
+
     Optional<Post> findByIdAndAuthorId(UUID id, UUID authorId);
 }
