@@ -1,5 +1,6 @@
 package com.wellu.community.follow.service;
 
+import com.wellu.community.feed.service.FeedFollowReader;
 import com.wellu.community.follow.dto.FollowResponse;
 import com.wellu.community.follow.dto.FollowSummaryResponse;
 import com.wellu.community.follow.dto.FollowUserResponse;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class FollowService {
+public class FollowService implements FeedFollowReader {
 
     private final FollowGraphRepository followGraphRepository;
 
@@ -49,6 +50,15 @@ public class FollowService {
         return followGraphRepository.findFollowing(userId)
                 .stream()
                 .map(projection -> new FollowUserResponse(projection.getUserId()))
+                .toList();
+    }
+
+    @Override
+    @Transactional(transactionManager = "neo4jTransactionManager", readOnly = true)
+    public List<UUID> getFollowingUserIds(UUID userId) {
+        return followGraphRepository.findFollowing(userId)
+                .stream()
+                .map(projection -> projection.getUserId())
                 .toList();
     }
 

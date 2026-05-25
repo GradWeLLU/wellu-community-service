@@ -53,4 +53,17 @@ public interface FollowGraphRepository extends Neo4jRepository<UserNode, UUID> {
             RETURN COUNT(relationship)
             """)
     long countFollowing(@Param("userId") UUID userId);
+
+    @Query("""
+            MATCH (me:User {id: $userId})-[:FOLLOWS]->(mutual:User)-[:FOLLOWS]->(suggested:User)
+            WHERE suggested.id <> $userId
+              AND NOT (me)-[:FOLLOWS]->(suggested)
+            RETURN suggested.id AS userId, COUNT(DISTINCT mutual) AS mutualCount
+            ORDER BY mutualCount DESC, suggested.id
+            LIMIT $limit
+            """)
+    List<com.wellu.community.discovery.service.SuggestedUserProjection> suggestUsers(
+            @Param("userId") UUID userId,
+            @Param("limit") int limit
+    );
 }
